@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -18,14 +20,14 @@ class _OtpPageState extends State<OtpPage> {
   TextEditingController otpControllers = TextEditingController();
   bool isLoading = false;
 
-  //verify method
+  // otp verification method
   Future<void> verifyOtp() async {
     setState(() {
       isLoading = true;
     });
 
     String otp = otpControllers.text.trim();
-    print("otp is :  ${otp}");
+    print("Entered otp is :  $otp");
     String url = 'https://fastbag.pythonanywhere.com/users/login/';
     try {
       final response = await http.post(
@@ -34,6 +36,7 @@ class _OtpPageState extends State<OtpPage> {
         body: jsonEncode({"mobile_number": widget.phoneNumber, "otp": otp}),
       );
       if (response.statusCode == 200) {
+        print('Verification Successful!');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Verification Successful!"),
@@ -50,6 +53,7 @@ class _OtpPageState extends State<OtpPage> {
           );
         });
       } else {
+        print('Invalid OTP!');
         final responseBody = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -59,6 +63,7 @@ class _OtpPageState extends State<OtpPage> {
         );
       }
     } catch (e) {
+      print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Network Error, Please try again"),

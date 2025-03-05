@@ -100,8 +100,8 @@ class StartPage extends StatelessWidget {
                     border: Border.all(color: Colors.white, width: 2),
                   ),
                   child: Icon(
-                    Icons.arrow_right_alt_sharp,
-                    size: 45,
+                    Icons.arrow_forward,
+                    size: 30,
                     color: Colors.white,
                   ),
                 ),

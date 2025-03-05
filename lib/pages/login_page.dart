@@ -1,10 +1,9 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:test_app/components/my_textfield.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:test_app/pages/otp_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,10 +14,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController numController = TextEditingController();
+  final TextEditingController numController = TextEditingController();
+  PhoneNumber number = PhoneNumber(isoCode: 'IN'); // Default to India (+91)
   bool isLoading = false;
 
-  // register method
+  // Register method
   Future<void> registerUser(String phoneNumber) async {
     setState(() {
       isLoading = true;
@@ -31,35 +31,37 @@ class _LoginPageState extends State<LoginPage> {
         body: jsonEncode({"mobile_number": phoneNumber}),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
+        print('OTP sent successfully');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('OTP send successfully'),
+          const SnackBar(
+            content: Text('OTP sent successfully'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 2),
           ),
         );
       } else {
-        // handle errors
+        print('Registration failed');
+        // Handle errors
         final responseBody = jsonDecode(response.body);
         showDialog(
           context: context,
           builder:
               (context) => AlertDialog(
                 content: Text(responseBody["Message"] ?? "Registration failed"),
-                title: Text('Error'),
+                title: const Text('Error'),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text('OK'),
+                    child: const Text('OK'),
                   ),
                 ],
               ),
         );
       }
     } catch (e) {
-      print(e.toString());
+      print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Network Error, Please try again")),
+        const SnackBar(content: Text("Network Error, Please try again")),
       );
     } finally {
       setState(() {
@@ -69,67 +71,88 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
-  void dispose() {
-    numController.text.trim();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: 90),
-              // suggetion text
-              Text(
+              const SizedBox(height: 90),
+              // Title Text
+              const Text(
                 'Login or create an account',
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               ),
 
-              SizedBox(height: 120),
-              // phn no. textfield
-              MyTextfield(
-                textAlign: TextAlign.start,
-                maxLength: 10,
-                hintText: 'Your Phone Number',
-                controller: numController,
-                keyboardType: TextInputType.number,
+              const SizedBox(height: 120),
+
+              // Country Code Picker & Phone Number Input
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: InternationalPhoneNumberInput(
+                    onInputChanged: (PhoneNumber value) {
+                      setState(() {
+                        number = value;
+                      });
+                    },
+                    initialValue: number,
+                    selectorConfig: const SelectorConfig(
+                      selectorType: PhoneInputSelectorType.DROPDOWN,
+                      setSelectorButtonAsPrefixIcon: true,
+                      trailingSpace: false,
+                      showFlags: true,
+                      useEmoji: true,
+                    ),
+                    maxLength: 10,
+                    ignoreBlank: false,
+                    autoValidateMode: AutovalidateMode.disabled,
+                    selectorTextStyle: const TextStyle(color: Colors.black),
+                    textFieldController: numController,
+                    formatInput: false,
+                    inputDecoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Your Phone Number",
+                      contentPadding: EdgeInsets.all(15),
+                    ),
+                  ),
+                ),
               ),
 
-              SizedBox(height: 270),
-              // text
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 60.0),
+              const SizedBox(height: 270),
+
+              // Terms & Conditions
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 60.0),
                 child: Text(
                   'By clicking "Continue" you agree with our Terms and Conditions',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 15),
                 ),
               ),
-              SizedBox(height: 20),
-              // continue button
+
+              const SizedBox(height: 20),
+
+              // Continue Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 5,
-                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 130),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 130,
+                  ),
                   backgroundColor: const Color.fromARGB(255, 0, 126, 228),
                 ),
                 onPressed: () {
-                  String phoneNumber = numController.text.trim();
-                  if (phoneNumber.isEmpty || phoneNumber.length < 10) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("Make sure you entered correctly!"),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                  if (phoneNumber.isNotEmpty && 10 == phoneNumber.length) {
+                  String phoneNumber = number.phoneNumber!;
+
+                  if (phoneNumber.length == 13) {
                     registerUser(phoneNumber).whenComplete(() {
-                      // successfully registered, navigate to OTP screen
-                      Future.delayed(Duration(seconds: 1), () {
+                      Future.delayed(const Duration(seconds: 1), () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -142,9 +165,16 @@ class _LoginPageState extends State<LoginPage> {
                         );
                       });
                     });
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Make sure you entered correctly!"),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
                 },
-                child: Text(
+                child: const Text(
                   'Continue',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white),

@@ -1,7 +1,4 @@
-// ignore_for_file: avoid_print
-
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:test_app/widgets/category_items.dart';
@@ -46,55 +43,35 @@ class _CategoryPageState extends State<CategoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("All Categories")),
+      appBar: AppBar(
+        title: const Text("All Categories"),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
       body:
           isLoading
-              ? Center(child: CircularProgressIndicator())
-              : Expanded(
+              ? const Center(child: CircularProgressIndicator())
+              : Padding(
+                padding: const EdgeInsets.all(10.0),
                 child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // Adjust based on UI
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // 2 columns as per Figma
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
+                    childAspectRatio: 1.2, // Adjusting the aspect ratio
                   ),
                   itemCount: categories.length,
                   itemBuilder: (context, index) {
-                    return Container(
-                      height: 200,
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          // category items
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Column(
-                              children: [
-                                Image.network(
-                                  categories[index]["category_image"],
-                                  fit: BoxFit.contain,
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: Text(
-                                    categories[index]["name"],
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                    return CategoryItem(
+                      imageUrl: categories[index]["category_image"],
+                      name: categories[index]["name"],
                     );
-                    // CategoryItems(
-                    //   src: categories[index]["category_image"],
-                    //   name: categories[index]["name"],
-                    // );
                   },
                 ),
               ),
