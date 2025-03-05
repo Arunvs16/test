@@ -26,7 +26,8 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: MyBottomNavBar(
-        onTabChange: (index) => navigateBottomBar(index),
+        currentIndex: _selectedIndex,
+        onTabChange: navigateBottomBar,
       ),
       body: _pages[_selectedIndex],
     );

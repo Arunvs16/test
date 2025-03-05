@@ -1,22 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
 
 class MyBottomNavBar extends StatelessWidget {
-  final void Function(int)? onTabChange;
-  const MyBottomNavBar({super.key, required this.onTabChange});
+  final Function(int) onTabChange;
+  final int currentIndex;
+
+  const MyBottomNavBar({
+    super.key,
+    required this.onTabChange,
+    required this.currentIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-      child: GNav(
-        onTabChange: (value) => onTabChange!(value),
-        tabs: [
-          GButton(icon: Icons.home, text: 'Home'),
-          GButton(icon: Icons.food_bank_outlined, text: 'Category'),
-          GButton(icon: Icons.person, text: 'Account'),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(25),
+          topRight: Radius.circular(25),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 5,
+            spreadRadius: 2,
+            offset: const Offset(0, -3),
+          ),
         ],
-        tabBorderRadius: 16,
+      ),
+      child: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: onTabChange,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        selectedItemColor: Colors.blue, 
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: "Home",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category_outlined),
+            activeIcon: Icon(Icons.category),
+            label: "Category",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: "Profile",
+          ),
+        ],
       ),
     );
   }

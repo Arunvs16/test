@@ -13,6 +13,8 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage> {
   List categories = [];
   bool isLoading = true;
+  TextEditingController searchController = TextEditingController();
+  List filteredCategories = [];
 
   @override
   void initState() {
@@ -28,6 +30,7 @@ class _CategoryPageState extends State<CategoryPage> {
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
+        print('Response: ${response.body}');
         setState(() {
           categories = json.decode(response.body);
           isLoading = false;
@@ -38,6 +41,19 @@ class _CategoryPageState extends State<CategoryPage> {
     } catch (e) {
       print("Error: $e");
     }
+  }
+
+  void filterCategories(String query) {
+    setState(() {
+      filteredCategories =
+          categories
+              .where(
+                (category) => category["name"].toLowerCase().contains(
+                  query.toLowerCase(),
+                ),
+              )
+              .toList();
+    });
   }
 
   @override
@@ -59,20 +75,48 @@ class _CategoryPageState extends State<CategoryPage> {
               ? const Center(child: CircularProgressIndicator())
               : Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // 2 columns as per Figma
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 1.2, // Adjusting the aspect ratio
-                  ),
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    return CategoryItem(
-                      imageUrl: categories[index]["category_image"],
-                      name: categories[index]["name"],
-                    );
-                  },
+                child: Column(
+                  children: [
+                    // 🔹 Custom Search Bar
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200], // Light background color
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: TextField(
+                        controller: searchController,
+                        onChanged: filterCategories,
+                        decoration: const InputDecoration(
+                          hintText: "Search categories...",
+                          prefixIcon: Icon(Icons.search, color: Colors.grey),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+
+                    // 🔹 Grid View for Categories
+                    Expanded(
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2, // 2 columns as per Figma
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio:
+                                  1.2, // Adjusting the aspect ratio
+                            ),
+                        itemCount: categories.length,
+                        itemBuilder: (context, index) {
+                          return CategoryItem(
+                            imageUrl: categories[index]["category_image"],
+                            name: categories[index]["name"],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
     );
