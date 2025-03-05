@@ -50,49 +50,53 @@ class _CategoryPageState extends State<CategoryPage> {
       body:
           isLoading
               ? Center(child: CircularProgressIndicator())
-              : GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Adjust based on UI
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    height: 200,
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        // category items
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Column(
-                            children: [
-                              Image.network(
-                                categories[index]["category_image"],
-                                fit: BoxFit.contain,
-                              ),
-                              SizedBox(height: 10),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
+              : Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // Adjust based on UI
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      height: 200,
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          // category items
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Column(
+                              children: [
+                                Image.network(
+                                  categories[index]["category_image"],
+                                  fit: BoxFit.contain,
                                 ),
-                                child: Text(
-                                  categories[index]["name"],
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                SizedBox(height: 10),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Text(
+                                    categories[index]["name"],
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                  // CategoryItems(
-                  //   src: categories[index]["category_image"],
-                  //   name: categories[index]["name"],
-                  // );
-                },
+                        ],
+                      ),
+                    );
+                    // CategoryItems(
+                    //   src: categories[index]["category_image"],
+                    //   name: categories[index]["name"],
+                    // );
+                  },
+                ),
               ),
     );
   }
