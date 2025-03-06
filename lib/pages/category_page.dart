@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:test_app/providers/category_provider.dart';
 import 'package:test_app/widgets/category_items.dart';
 
 class CategoryPage extends StatefulWidget {
@@ -11,39 +11,20 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
-  List categories = [];
-  bool isLoading = true;
   TextEditingController searchController = TextEditingController();
   List filteredCategories = [];
 
   @override
   void initState() {
     super.initState();
-    fetchCategories();
-  }
-
-  Future<void> fetchCategories() async {
-    final url = Uri.parse(
-      "https://fastbag.pythonanywhere.com/vendors/categories/view/",
+    final categoryProvider = Provider.of<CategoryProvider>(
+      context,
+      listen: false,
     );
-
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        print('Response: ${response.body}');
-        setState(() {
-          categories = json.decode(response.body);
-          isLoading = false;
-        });
-      } else {
-        print("Failed to load categories: ${response.statusCode}");
-      }
-    } catch (e) {
-      print("Error: $e");
-    }
+    categoryProvider.fetchCategories();
   }
 
-  void filterCategories(String query) {
+  void filterCategories(String query, List categories) {
     setState(() {
       filteredCategories =
           categories
@@ -58,6 +39,9 @@ class _CategoryPageState extends State<CategoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final categoryProvider = Provider.of<CategoryProvider>(context);
+    List categories = categoryProvider.categories;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("All Categories"),
@@ -71,7 +55,7 @@ class _CategoryPageState extends State<CategoryPage> {
         ),
       ),
       body:
-          isLoading
+          categoryProvider.isLoading
               ? const Center(child: CircularProgressIndicator())
               : Padding(
                 padding: const EdgeInsets.all(10.0),
@@ -85,7 +69,8 @@ class _CategoryPageState extends State<CategoryPage> {
                       ),
                       child: TextField(
                         controller: searchController,
-                        onChanged: filterCategories,
+                        onChanged:
+                            (query) => filterCategories(query, categories),
                         decoration: const InputDecoration(
                           hintText: "Search categories...",
                           prefixIcon: Icon(Icons.search, color: Colors.grey),
@@ -101,17 +86,23 @@ class _CategoryPageState extends State<CategoryPage> {
                       child: GridView.builder(
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2, // 2 columns as per Figma
+                              crossAxisCount: 2,
                               crossAxisSpacing: 10,
                               mainAxisSpacing: 10,
-                              childAspectRatio:
-                                  1.2, // Adjusting the aspect ratio
+                              childAspectRatio: 1.2,
                             ),
-                        itemCount: categories.length,
+                        itemCount:
+                            filteredCategories.isEmpty
+                                ? categories.length
+                                : filteredCategories.length,
                         itemBuilder: (context, index) {
+                          final category =
+                              filteredCategories.isEmpty
+                                  ? categories[index]
+                                  : filteredCategories[index];
                           return CategoryItem(
-                            imageUrl: categories[index]["category_image"],
-                            name: categories[index]["name"],
+                            imageUrl: category["category_image"],
+                            name: category["name"],
                           );
                         },
                       ),
