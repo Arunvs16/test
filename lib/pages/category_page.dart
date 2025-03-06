@@ -56,7 +56,9 @@ class _CategoryPageState extends State<CategoryPage> {
       ),
       body:
           categoryProvider.isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                child: CircularProgressIndicator(color: Colors.blue),
+              )
               : Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Column(

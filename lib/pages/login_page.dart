@@ -95,8 +95,17 @@ class _LoginPageState extends State<LoginPage> {
                     authProvider.isLoading
                         ? null
                         : () {
-                          String phoneNumber = number.phoneNumber!;
-                          if (phoneNumber.length == 13) {
+                          String phoneNumber = numController.text.trim();
+
+                          if (phoneNumber.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Cant be empty!"),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                          if (phoneNumber.length == 10) {
                             authProvider
                                 .registerUser(context, phoneNumber)
                                 .whenComplete(() {
@@ -134,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                 child:
                     authProvider.isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
+                        ? const CircularProgressIndicator(color: Colors.blue)
                         : const Text(
                           'Continue',
                           textAlign: TextAlign.center,

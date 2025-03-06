@@ -106,7 +106,7 @@ class _OtpPageState extends State<OtpPage> {
                       child:
                           authProvider.isLoading
                               ? const CircularProgressIndicator(
-                                color: Colors.white,
+                                color: Colors.blue,
                               )
                               : const Text(
                                 'Verify',
