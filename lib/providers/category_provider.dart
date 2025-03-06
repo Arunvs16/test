@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 class CategoryProvider extends ChangeNotifier {
   List categories = [];
   bool isLoading = true;
-  
 
   CategoryProvider() {
     fetchCategories();
@@ -22,6 +21,7 @@ class CategoryProvider extends ChangeNotifier {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         categories = json.decode(response.body);
+        print('Response Status Code: ${response.statusCode}');
         print('Response: $categories');
       } else {
         print("Failed to load categories: ${response.statusCode}");

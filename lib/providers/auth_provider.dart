@@ -20,21 +20,31 @@ class AuthProvider extends ChangeNotifier {
         body: jsonEncode({"mobile_number": phoneNumber}),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      print("🔹 Response Status Code: ${response.statusCode}");
+      print("🔹 Response Body: ${response.body}");
+
+      final responseBody = jsonDecode(response.body);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        //  Success case - OTP sent successfully
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('OTP sent successfully'),
             backgroundColor: Colors.green,
           ),
         );
-      } else {
-        final responseBody = jsonDecode(response.body);
+      }
+      if (response.statusCode >= 400) {
+        //  Failure case - Log and show the error message
+        String errorMessage = responseBody["Message"] ?? "Registration failed";
+        print("❌ Error Message from API: $errorMessage");
+
         showDialog(
           context: context,
           builder:
               (context) => AlertDialog(
                 title: const Text('Error'),
-                content: Text(responseBody["Message"] ?? "Registration failed"),
+                content: Text(errorMessage),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
@@ -45,8 +55,13 @@ class AuthProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
+      print("❗ Exception Occurred: $e");
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Network Error, Please try again")),
+        const SnackBar(
+          content: Text("Network Error, Please try again"),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       isLoading = false;
@@ -54,7 +69,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Verify OTP Method 
+  // Verify OTP Method
   Future<void> verifyOtp(
     BuildContext context,
     String phoneNumber,
